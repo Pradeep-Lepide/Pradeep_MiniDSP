@@ -1,0 +1,54 @@
+# Work log — Agent maintains this automatically
+
+## Environment / baseline
+- Status: CHECKED 2026-10-21T05:23:57Z.
+- Workspace contains documentation and synthetic fixtures only; no Next.js application, package manifest, test runner configuration, Supabase configuration or Git repository is present.
+- Node.js `v24.21.0` and npm `11.19.0` are available.
+- `design.md` contains the Lepidus design contract, but `DESIGN_REFERENCE.md` still has TODO values for the primary path, live reference, assets and licensing notes.
+
+## Progress (append a short entry per task)
+| Time (UTC) | Task | Changed files | Tests: command + actual result | Problems / fix | Git status |
+|---|---|---|---|---|---|
+| 2026-10-21T05:23:57Z | Verify starting baseline | `WORK_LOG.md` | NOT RUN — no application or test configuration exists | Initial UTC command `Get-Date -AsUTC` failed because this PowerShell version lacks `-AsUTC`; used `[DateTime]::UtcNow` successfully | Unavailable — workspace is not a Git repository |
+| 2026-10-21T05:34:40Z | Pure TypeScript detection/classification core | `src/detection.ts`, `tests/detection.test.ts`, `WORK_LOG.md`, `LEARNINGS.md` | `node --test tests\detection.test.ts` — first run: 7 passed, 2 failed, exit 1; rerun: 9 passed, 0 failed/skipped, exit 0 | Corrected two invalid synthetic test assumptions: prohibited NINO second letter and whitespace joining two card candidates into one oversized run | Unavailable — workspace is not a Git repository; no commit |
+| 2026-10-21T05:44:01Z | Resolve cross-detector overlaps | `src/detection.ts`, `tests/detection.test.ts`, `WORK_LOG.md`, `LEARNINGS.md` | `node --test tests\detection.test.ts` — 11 passed, 0 failed/skipped, exit 0 | Added global span resolution and email/phone plus email/NINO regression tests; no failures | Unavailable — workspace is not a Git repository; no commit |
+| 2026-10-21T06:28:49Z | Minimal authenticated upload and atomic Supabase persistence scaffold | Next/React scaffold, `src/lib/`, server actions, upload tests, migration, environment example and docs | `npm test` — initial and final runs each 19 passed, 0 failed/skipped, exit 0; `npm run build` — initial and final builds compiled and TypeScript checked successfully, exit 0 | Human approved minimal dependency installation. Hardened final pass with database masked-format constraints, actual-byte boundary tests and explicit sign-out failure handling | Unavailable — workspace is not a Git repository; no commit |
+| 2026-10-21T06:36:46Z | Fix Server Actions upload boundary | `next.config.ts`, `src/lib/upload-validation.ts`, `tests/upload.test.ts`, `WORK_LOG.md`, `LEARNINGS.md` | `npm test` — 20 passed, 0 failed/skipped, exit 0; `npm run build` — compiled and TypeScript checked successfully, exit 0 | Set transport limit to 2 MiB for multipart overhead; reject trusted oversized metadata before reading while retaining authoritative post-read byte validation | Unavailable — workspace is not a Git repository; no commit |
+| 2026-10-21T06:43:25Z | Initialize Git and launch local UI shell | `WORK_LOG.md` plus local Git metadata | `Invoke-WebRequest http://localhost:3000` — HTTP 200, HTML response contained MiniDSP heading | `.env.local` remained absent after two confirmations; UI shell launched, but Supabase actions remain blocked until local environment configuration exists | Git initialized on `main`; `origin` set to supplied repository; no commit or push |
+| 2026-10-21T06:46:29Z | Revalidate environment and restart local UI | `WORK_LOG.md`; local `.env` remains ignored | Supabase `/auth/v1/settings` — HTTP 200; local `GET /` — HTTP 200 with sign-in and upload forms; automated tests NOT RUN (no code change) | Required environment variables are present and non-empty; Next confirmed loading `.env` | No commits yet; `.env` verified ignored; no push |
+| 2026-10-21T06:58:48Z | Build Lepidus first-run and dashboard UI before migration | `app/`, `src/lib/scan-persistence.ts`, `WORK_LOG.md`, `LEARNINGS.md` | `npm test` — 20 passed, 0 failed/skipped, exit 0; `npm run build` — compiled and TypeScript checked successfully, exit 0; live browser — auth UI visible, 0 console errors | Human chose UI before remote integration. Added sign-up for confirmation-disabled Auth and honest database-setup state; migration remains unapplied | No commits yet; no push |
+| 2026-10-21T07:15:17Z | Diagnose Supabase account creation | `app/server-actions.ts`, `src/lib/auth-error.ts`, `tests/auth-error.test.ts`, `WORK_LOG.md` | `npm test` — 23 passed, 0 failed/skipped, exit 0; `npm run build` — compiled and TypeScript checked successfully, exit 0; approved remote Auth signup — user created, email confirmed and session issued | Added safe error-code mapping. Human approved creation of one generated synthetic Auth user; credentials/tokens were not printed or retained. Delete the `minidsp-training-*` user from Supabase after diagnostics | No commits yet; no push |
+| 2026-10-21T07:26:10Z | Fix Node-to-Supabase TLS and sign-in action | `package.json`, `app/page.tsx`, `src/lib/auth-error.ts`, `tests/auth-error.test.ts`, `README.md`, `WORK_LOG.md`, `LEARNINGS.md` | `npm test` — 24 passed, 0 failed/skipped, exit 0; `npm run build` — compiled and TypeScript checked successfully, exit 0; browser synthetic invalid sign-in reached Supabase and returned expected credential error | Root cause was Node `SELF_SIGNED_CERT_IN_CHAIN` from local HTTPS inspection. Used secure `--use-system-ca`; never disabled TLS. Made sign-in the default form action | No commits yet; no push |
+| 2026-10-21T08:00:26Z | Apply scan schema and resolve dashboard setup state | `supabase/migrations/20261021060000_create_scans_and_findings.sql`, `package.json`, `package-lock.json`, `WORK_LOG.md`, `LEARNINGS.md` | First SQL Editor run failed: PostgreSQL 42601 at inline risk `CASE`; corrected full rerun succeeded. `npm test` — 24 passed, 0 failed/skipped, exit 0; `npm run build` — compiled and TypeScript checked successfully, exit 0; remote probes: anonymous scans 401, protected RPC 404; human confirmed dashboard Ready | Human approved remote migration. CLI secrets were never present despite confirmation, so human applied corrected SQL manually. Supabase CLI installed locally but not used to apply | No commits yet; `.env` ignored; no push |
+
+## Decisions and known gaps
+- Await the first Instructor task before implementation.
+- Starter Next.js/React/TypeScript project, isolated Supabase environment/test users, completed design references, Git repository/private remote and deployment access are not supplied or not verifiable.
+- Detection milestone uses Node 24's built-in TypeScript execution and `node:test`; no dependencies or application scaffold were added.
+- Implemented email, common UK phone, UK NINO and Luhn-valid 13–19 digit card detection; masked aggregation, repeated counts and highest-risk classification. Upload validation and all integrations remain out of scope and unverified.
+- Cross-detector precedence is deterministic: higher risk wins (Critical, High, Medium, Low); ties use earlier source position, then longer span, then detector declaration order. An accepted source span cannot overlap another counted finding. This follows the product's highest-risk rule and avoids double counting.
+- Milestone 1 static TypeScript compilation was NOT RUN because no compiler/configuration existed then; milestone 2 production builds now include successful TypeScript checks.
+- Milestone 2 added Next.js 16.4, React 19.3, Supabase SSR/JS and TypeScript 7 after explicit human approval. `npm install` reported 0 vulnerabilities.
+- Supabase configuration uses environment variables. The supplied project URL is present only in `.env.example`; no key or local environment file is present.
+- The scan/finding migration is APPLIED to the training project after explicit human approval. It was applied manually in SQL Editor, so Supabase CLI migration-history synchronization remains unverified.
+- Next.js Server Actions accept request bodies up to 2 MiB so a valid 1 MiB file plus multipart overhead reaches application validation. The application limit remains exactly 1,048,576 content bytes.
+- Real HTTP multipart upload: NOT RUN. Only direct unit tests of validation and a production build were executed.
+- Initial UI-shell launch returned HTTP 200 but had no local Supabase environment configuration.
+- Environment blocker resolved: Next loads `.env`, the Supabase Auth settings probe returned HTTP 200, and `.env` is Git-ignored. Test-user sign-in, migration application, RPC persistence and real upload remain NOT RUN.
+- Human decision: build the dashboard UI before applying the database migration. The UI queries real owner-scoped scans when available and otherwise shows a blocking setup state with zero metrics; it does not display synthetic dashboard data.
+- Supabase `scans` endpoint returned HTTP 404 before UI work, confirming the migration is not applied. Account creation, sign-in, authenticated dashboard rendering and upload remain NOT RUN with a real test user.
+- Supabase Auth integration is now VERIFIED with an approved generated synthetic signup: user creation, auto-confirmation and session issuance succeeded. The user's own account attempt remains unresolved; the freshly restarted server had no new POST for the reported retry.
+- Node/Next Supabase connectivity is now VERIFIED using the Windows certificate store. Before the fix, PowerShell reached Supabase but Node failed with `AuthRetryableFetchError` caused by `SELF_SIGNED_CERT_IN_CHAIN`; `--use-system-ca` resolved it with HTTP 200. Valid-user sign-in is still NOT RUN because credentials were not shared.
+- Authenticated dashboard schema readiness is VERIFIED by human confirmation. Anonymous table access is denied and the write RPC is not exposed to anon. Real upload persistence, atomic rollback under a database failure, and two-user RLS isolation remain NOT RUN.
+- Dashboard, findings history, export and deployment remain out of scope.
+
+## Security checks
+- NOT RUN — there is no application, database configuration or integration to inspect.
+- Detection tests process fixtures in memory and assert only classifications; the core returns masked aggregated examples and does not persist or log input or raw matches.
+- Upload validation rejects empty, over-1-MiB, unsupported, binary and invalid-UTF-8 content using server-read bytes. Unit tests passed for each case.
+- Persistence uses one RPC payload containing metadata and masked aggregates only. The unapplied migration uses a security-definer transaction, owner-derived IDs, composite parent-owner foreign keys, select RLS and masked-format constraints.
+- Remote RLS and database rollback checks: NOT RUN.
+
+**Rule:** Keep failures and retests. Do not claim PASS without executing a test.
+
+**Rule:** Use actual UTC timestamps or Git commit timestamps. Never estimate times.
