@@ -9,4 +9,5 @@ After each phase, the Agent asks the developer for one useful learning and recor
 - **UI:** Keep dashboard, workflow and evidence concerns in separate App Shell routes: Overview summarizes, Scan performs the upload task, and Findings presents masked evidence with source-file metadata.
 - **Testing/deployment:** A successful PowerShell API probe does not prove Node runtime connectivity. Test through the actual runtime and trust the OS CA store rather than disabling TLS when HTTPS inspection adds a local root certificate.
 - **Testing/deployment:** Test both unauthenticated and authenticated page loads. A public HTTP 200 can hide an authenticated SSR failure when token refresh attempts to mutate cookies outside a response-capable boundary.
+- **Findings/export:** Keep owner-scoped reads on the server, filter only the masked view model in the browser, and neutralize formula-leading user metadata before CSV download.
 - **What I'd do differently:**
