@@ -1,21 +1,28 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-function requiredEnvironmentVariable(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
+import { getSupabaseEnvironment } from "./environment";
 
-  return value;
+export async function createServerSupabaseReadClient() {
+  const cookieStore = await cookies();
+  const environment = getSupabaseEnvironment();
+
+  return createServerClient(environment.url, environment.anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+    },
+  });
 }
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
+  const environment = getSupabaseEnvironment();
 
   return createServerClient(
-    requiredEnvironmentVariable("NEXT_PUBLIC_SUPABASE_URL"),
-    requiredEnvironmentVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    environment.url,
+    environment.anonKey,
     {
       cookies: {
         getAll() {

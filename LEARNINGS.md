@@ -8,4 +8,5 @@ After each phase, the Agent asks the developer for one useful learning and recor
 - **Security/persistence:** Treat migrations as executable code: capture the first SQL failure, verify no partial schema remains, correct the PL/pgSQL expression, and rerun the complete migration before claiming readiness.
 - **UI:** Keep dashboard, workflow and evidence concerns in separate App Shell routes: Overview summarizes, Scan performs the upload task, and Findings presents masked evidence with source-file metadata.
 - **Testing/deployment:** A successful PowerShell API probe does not prove Node runtime connectivity. Test through the actual runtime and trust the OS CA store rather than disabling TLS when HTTPS inspection adds a local root certificate.
+- **Testing/deployment:** Test both unauthenticated and authenticated page loads. A public HTTP 200 can hide an authenticated SSR failure when token refresh attempts to mutate cookies outside a response-capable boundary.
 - **What I'd do differently:**

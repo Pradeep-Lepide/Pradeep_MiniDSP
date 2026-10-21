@@ -1,6 +1,6 @@
 import { AppShell, AuthScreen, DatabaseSetupMessage, Icon } from "../components";
 import { uploadAndScan } from "../server-actions";
-import { createServerSupabaseClient } from "../../src/lib/supabase/server";
+import { createServerSupabaseReadClient } from "../../src/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ interface ScanPageProps {
 export default async function ScanPage({ searchParams }: ScanPageProps) {
   const parameters = await searchParams;
   const message = typeof parameters.message === "string" ? parameters.message : undefined;
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseReadClient();
   const { data: authData } = await supabase.auth.getUser();
 
   if (!authData.user) {

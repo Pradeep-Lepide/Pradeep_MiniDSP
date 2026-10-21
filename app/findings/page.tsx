@@ -1,5 +1,5 @@
 import type { FindingType, Risk } from "../../src/detection";
-import { createServerSupabaseClient } from "../../src/lib/supabase/server";
+import { createServerSupabaseReadClient } from "../../src/lib/supabase/server";
 import {
   AppShell,
   AuthScreen,
@@ -38,7 +38,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default async function FindingsPage() {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseReadClient();
   const { data: authData } = await supabase.auth.getUser();
 
   if (!authData.user) {

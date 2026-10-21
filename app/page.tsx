@@ -1,6 +1,6 @@
 import type { Risk } from "../src/detection";
 import { summarizeScans, type ScanSummaryInput } from "../src/lib/dashboard";
-import { createServerSupabaseClient } from "../src/lib/supabase/server";
+import { createServerSupabaseReadClient } from "../src/lib/supabase/server";
 import {
   AppShell,
   AuthScreen,
@@ -19,7 +19,7 @@ const riskOrder: Risk[] = ["Critical", "High", "Medium", "Low", "None"];
 export default async function Home({ searchParams }: HomeProps) {
   const parameters = await searchParams;
   const message = typeof parameters.message === "string" ? parameters.message : undefined;
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseReadClient();
   const { data: authData } = await supabase.auth.getUser();
 
   if (!authData.user) {
