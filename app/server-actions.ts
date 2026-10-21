@@ -15,8 +15,8 @@ import {
   type UploadFile,
 } from "../src/lib/upload-validation.ts";
 
-function homeWithMessage(message: string): string {
-  return `/?message=${encodeURIComponent(message)}`;
+function pathWithMessage(path: string, message: string): string {
+  return `${path}?message=${encodeURIComponent(message)}`;
 }
 
 export async function signIn(formData: FormData): Promise<never> {
@@ -24,17 +24,17 @@ export async function signIn(formData: FormData): Promise<never> {
   const password = formData.get("password");
 
   if (typeof email !== "string" || typeof password !== "string") {
-    redirect(homeWithMessage("Email and password are required."));
+    redirect(pathWithMessage("/", "Email and password are required."));
   }
 
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(homeWithMessage(safeAuthErrorMessage("signIn", error)));
+    redirect(pathWithMessage("/", safeAuthErrorMessage("signIn", error)));
   }
 
-  redirect(homeWithMessage("Signed in."));
+  redirect(pathWithMessage("/", "Signed in."));
 }
 
 export async function signUp(formData: FormData): Promise<never> {
@@ -42,35 +42,35 @@ export async function signUp(formData: FormData): Promise<never> {
   const password = formData.get("password");
 
   if (typeof email !== "string" || typeof password !== "string") {
-    redirect(homeWithMessage("Email and password are required."));
+    redirect(pathWithMessage("/", "Email and password are required."));
   }
 
   if (password.length < 8) {
-    redirect(homeWithMessage("Use a password with at least 8 characters."));
+    redirect(pathWithMessage("/", "Use a password with at least 8 characters."));
   }
 
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    redirect(homeWithMessage(safeAuthErrorMessage("signUp", error)));
+    redirect(pathWithMessage("/", safeAuthErrorMessage("signUp", error)));
   }
 
   if (!data.session) {
-    redirect(homeWithMessage("Account created. Complete any email verification, then sign in."));
+    redirect(pathWithMessage("/", "Account created. Complete any email verification, then sign in."));
   }
 
-  redirect(homeWithMessage("Account created and signed in."));
+  redirect(pathWithMessage("/", "Account created and signed in."));
 }
 
 export async function signOut(): Promise<never> {
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
-    redirect(homeWithMessage("Sign-out failed."));
+    redirect(pathWithMessage("/", "Sign-out failed."));
   }
 
-  redirect(homeWithMessage("Signed out."));
+  redirect(pathWithMessage("/", "Signed out."));
 }
 
 export async function uploadAndScan(formData: FormData): Promise<never> {
@@ -78,12 +78,12 @@ export async function uploadAndScan(formData: FormData): Promise<never> {
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
-    redirect(homeWithMessage("You must sign in before scanning a file."));
+    redirect(pathWithMessage("/", "You must sign in before scanning a file."));
   }
 
   const file = formData.get("file");
   if (!(file instanceof File)) {
-    redirect(homeWithMessage("Select a CSV or TXT file."));
+    redirect(pathWithMessage("/scan", "Select a CSV or TXT file."));
   }
 
   let payload;
@@ -91,7 +91,7 @@ export async function uploadAndScan(formData: FormData): Promise<never> {
     payload = await prepareUploadForPersistence(file as UploadFile);
   } catch (validationError) {
     if (validationError instanceof UploadValidationError) {
-      redirect(homeWithMessage(validationError.message));
+      redirect(pathWithMessage("/scan", validationError.message));
     }
     throw validationError;
   }
@@ -109,14 +109,14 @@ export async function uploadAndScan(formData: FormData): Promise<never> {
     );
   } catch (persistenceError) {
     if (persistenceError instanceof ScanPersistenceError) {
-      redirect(homeWithMessage(
+      redirect(pathWithMessage("/scan",
         "Scan could not be saved. Confirm that the database migration is applied.",
       ));
     }
     throw persistenceError;
   }
 
-  redirect(homeWithMessage(
+  redirect(pathWithMessage("/scan",
     `Scan saved: ${payload.classification}, ${payload.totalFindings} findings.`,
   ));
 }
